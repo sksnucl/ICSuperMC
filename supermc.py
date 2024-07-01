@@ -14,9 +14,11 @@ ptab = eoslaine[:,1]
 
 eosp = interp1d(etab, ptab, kind='cubic')
 
+# cs2 from lattice qcd
 def cs2(e):
     return derivative(eosp,e,dx=1e-2)
 
+# Function to convert conserved variables to primitive variables, taken from vhlle
 def transformPV(Q):
     MAXIT = 100
     dpe = 1.0 / 3.0
@@ -107,18 +109,19 @@ xmin, xmax, dx = -15, 15, 0.2
 ymin, ymax, dy = -15, 15, 0.2
 zmin, zmax, dz = -10, 10, 0.2
 
+# Create arrays for each coordinate
 nx = int((xmax - xmin) / dx) + 1
 ny = int((ymax - ymin) / dy) + 1
 nz = int((zmax - zmin) / dz) + 1
 
-# Create arrays for each coordinate
 xpoints = np.linspace(xmin, xmax, nx)
 ypoints = np.linspace(ymin, ymax, ny)
 zpoints = np.linspace(zmin, zmax, nz)
 
+# Meshgrid for transverse plane
 Xt_x, Xt_y = np.meshgrid(xpoints, ypoints, indexing='ij')
 
-# Parameters
+# IC Parameters
 sNN = 200
 eta0 = 1.5
 sigmaeta = 1.4
@@ -149,17 +152,6 @@ def Mass(TA,TB):
 def normalization(M):
     C = np.exp(eta0) *special.erfc(-np.sqrt(0.5)*sigmaeta) + np.exp(-eta0) *special.erfc(np.sqrt(0.5)*sigmaeta)
     return M/(2*np.sinh(eta0) + np.sqrt(0.5*np.pi) *sigmaeta *np.exp(sigmaeta*sigmaeta*0.5)*C )
-
-def max_distance_from_center(eventx, eventy, xcdm, ycdm):
-    distances = np.sqrt((np.array(eventx) - xcdm) ** 2 +(np.array(eventy) - ycdm) ** 2)
-    return np.max(distances)
-
-def T(x, y, xa, ya, xcdm, ycdm, maxR):
-    T = 0
-    if np.sqrt((x - xcdm) ** 2 + (y - ycdm) ** 2) < maxR + 4 * w:
-        for partA in range(len(xa)):
-            T += 1. / (2. * np.pi * w * w) * np.exp(-1. / (2. * w * w) * ((x - xa[partA]) ** 2 + (y - ya[partA]) ** 2))
-    return T
 
 def energy(N, etas, ycombo):
     eta0_new = np.minimum(eta0, ybeam - ycombo)
